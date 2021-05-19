@@ -1,0 +1,131 @@
+org: gabioto
+app: my-aws-node-reto-tecnico
+service: my-aws-node-reto-tecnico
+
+frameworkVersion: '2'
+custom:
+  tableName: 'plants-table-${self:provider.stage}'
+  dynamodb:
+    start:
+      migrate: true
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: '20201221'
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:  
+      # arn:aws:dymanodb:us-east-1:*:*
+        - { "Fn::GetAtt": ["PlantasDynamoDBTable", "Arn" ] }
+  environment:
+    PLANTS_TABLE: ${self:custom.tableName}
+
+
+functions:
+  # api:
+  #   handler: handler.handler
+  #   events:
+  #     - http:
+  #         path: /user
+  #         method: get
+  #         cors: true
+  #     - http:
+  #         path: /{proxy+}
+  #         method: ANY
+  #         cors: true
+  getPeople:
+    handler: handler.handler
+    events:
+      - http: 'GET /people'
+  getPerson:
+    handler: handler.handler
+    events:
+      - http: 'GET /people/{proxy+}'
+  getFilms:
+    handler: handler.handler
+    events:
+      - http: 'GET /films'
+  getFilm:
+    handler: handler.handler
+    events:
+      - http: 'GET /films/{proxy+}'
+  getPlanets:
+    handler: handler.handler
+    events:
+      - http: 'GET /planets'
+  getPlanet:
+    handler: handler.handler
+    events:
+      - http: 'GET /planets/{proxy+}'
+  getSpecies:
+    handler: handler.handler
+    events:
+      - http: 'GET /species'
+  getSpecie:
+    handler: handler.handler
+    events:
+      - http: 'GET /species/{proxy+}'
+  getStarShips:
+    handler: handler.handler
+    events:
+      - http: 'GET /starships'
+  getStarShip:
+    handler: handler.handler
+    events:
+      - http: 'GET /starships/{proxy+}'
+  getVehicles:
+    handler: handler.handler
+    events:
+      - http: 'GET /vehicles'
+  getVehicle:
+    handler: handler.handler
+    events:
+      - http: 'GET /vehicles/{proxy+}'
+  createPlantas:
+    handler: handler.handler
+    events:
+      - http: 'POST /plantas'
+  getListPlants:
+    handler: handler.handler
+    events:
+      - http: 'GET /plantas'
+  getOnePlant:
+    handler: handler.handler
+    events:
+      - http: 'GET /plantas/{proxy+}'
+ 
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+
+resources:
+  Resources:
+    PlantasDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:custom.tableName}
+          # plantas
